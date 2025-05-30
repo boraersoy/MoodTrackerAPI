@@ -9,16 +9,22 @@ const moodSchema = new mongoose.Schema({
   data: { 
     type: Object 
   },
-  mood_type: { 
-    type: String, 
-    required: true 
-  },
   note: { 
     type: String 
   },
   created_at: { 
     type: Date, 
     default: Date.now 
+  },
+  // ADDED FIELDS
+  mood_type: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Mood_Type', 
+    required: true 
+  },
+  reason: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Reason' 
   }
 });
 

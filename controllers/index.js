@@ -8,12 +8,21 @@ require('dotenv').config();
 // ======================
 exports.createMood = async (req, res) => {
   try {
+    const user = await User.findById(req.user._id);
     const moodData = {
       ...req.body,
-      user_id: req.user._id // Attach authenticated user
+      user_id: user._id // Attach authenticated user
     };
     const mood = new Mood(moodData);
     await mood.save();
+    // Update user's last mood date and streak
+    user.last_mood_date = new Date().today();
+    user.streak.current += 1; // Increment current streak
+    if (user.streak.current > user.streak.longest) {
+      user.streak.longest = user.streak.current; // Update longest streak if current is greater
+    }
+    await user.save();
+    // Return the created mood
     res.status(201).json(mood);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -226,3 +235,72 @@ exports.updateAvatar = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// ======================
+// Mood Type Controllers
+// ======================
+exports.getMoodTypes = async (req, res) => {
+  try {
+    const moodTypes = await Mood_Type.find();
+    res.json(moodTypes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+exports.createMoodType = async (req, res) => {
+  try {
+    const moodType = new Mood_Type(req.body);
+    await moodType.save();
+    res.status(201).json(moodType);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+exports.updateMoodType = async (req, res) => {
+  try {
+    const moodType = await Mood_Type.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!moodType) return res.status(404).json({ error: 'Mood Type not found' });
+    res.json(moodType);
+  }
+  catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+
+// ======================
+// Streak Controllers
+// ======================
+
+exports.getStreak = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('streak last_mood_date');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Calculate current streak
+    const today = new Date();
+    const lastMoodDate = user.last_mood_date ? new Date(user.last_mood_date) : null;
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    if (lastMoodDate != yesterday && lastMoodDate != today) {
+      // If last mood was not yesterday or today, reset streak
+      user.streak.current = 0; // Reset streak if last mood was not yesterday
+      await user.save();
+    }
+    // return current streak
+    res.json(user.streak);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// update streak logic
+exports.updateStreak = async (req, res) => {
+if (!user.last_mood_date || user.lastMoodDate.toDateString() != new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString()) {
+  user.streak.current = 0}; // Reset current streak if last mood was not today
+}
