@@ -4,4 +4,6 @@ module.exports = {
     Task: require('./Task'),
     Quote: require('./Quote'),
     Avatar: require('./Avatar'),
+    Mood_Type: require('./Mood_Type'),
+    Reason: require('./Reason'),
   };
