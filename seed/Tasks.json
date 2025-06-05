@@ -1,0 +1,366 @@
+[
+  {
+    "mood": "Happy",
+    "text": "Share your joy with someone today."
+  },
+  {
+    "mood": "Happy",
+    "text": "Write down three things that made you smile."
+  },
+  {
+    "mood": "Happy",
+    "text": "Dance to your favorite song."
+  },
+  {
+    "mood": "Happy",
+    "text": "Send a kind message to someone."
+  },
+  {
+    "mood": "Happy",
+    "text": "Capture this moment."
+  },
+  {
+    "mood": "Happy",
+    "text": "Reflect on how far you've come."
+  },
+  {
+    "mood": "Happy",
+    "text": "Do something fun just for yourself."
+  },
+  {
+    "mood": "Sad",
+    "text": "Write down what you're feeling without judgment."
+  },
+  {
+    "mood": "Sad",
+    "text": "Drink a glass of water and take 5 deep breaths."
+  },
+  {
+    "mood": "Sad",
+    "text": "Go for a short walk, even indoors."
+  },
+  {
+    "mood": "Sad",
+    "text": "Put on calming music and lie down."
+  },
+  {
+    "mood": "Sad",
+    "text": "Message a friend just to say hi."
+  },
+  {
+    "mood": "Sad",
+    "text": "Wrap yourself in a blanket and rest."
+  },
+  {
+    "mood": "Sad",
+    "text": "Name 3 small things you're grateful for."
+  },
+  {
+    "mood": "Angry",
+    "text": "Try a 5-minute guided breathing session."
+  },
+  {
+    "mood": "Angry",
+    "text": "Write down what made you angry, then tear it up."
+  },
+  {
+    "mood": "Angry",
+    "text": "Do a physical activity like walking or jumping jacks."
+  },
+  {
+    "mood": "Angry",
+    "text": "Splash your face with cold water."
+  },
+  {
+    "mood": "Angry",
+    "text": "Name the emotion behind the anger (hurt, fear, etc.)."
+  },
+  {
+    "mood": "Angry",
+    "text": "Listen to loud music and let your body move."
+  },
+  {
+    "mood": "Angry",
+    "text": "Change your environment for 10 minutes."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Do the 5-4-3-2-1 grounding technique."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Stretch your body slowly and gently."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Write down what's in your control and what's not."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Hold something cold for 30 seconds and breathe."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Name your feeling out loud."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Count backwards from 50 by 3s."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Take 10 deep belly breaths."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Remind yourself: everyone makes mistakes."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Write about what happened as if it were a funny story."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Think of 3 people who love you no matter what."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Look at a mirror and say something kind to yourself."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Remember: this moment doesn't define you."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Watch a light-hearted comedy clip."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Put your hand on your heart and breathe slowly."
+  },
+  {
+    "mood": "Loved",
+    "text": "Write a note to someone you care about."
+  },
+  {
+    "mood": "Loved",
+    "text": "List the people you feel safest with."
+  },
+  {
+    "mood": "Loved",
+    "text": "Think of a moment you felt deeply appreciated."
+  },
+  {
+    "mood": "Loved",
+    "text": "Hug someone (or even yourself) tightly."
+  },
+  {
+    "mood": "Loved",
+    "text": "Listen to a song that reminds you of love."
+  },
+  {
+    "mood": "Loved",
+    "text": "Reflect on how you give and receive love."
+  },
+  {
+    "mood": "Loved",
+    "text": "Send a kind message to someone you care about."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Take a shower or wash your face."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Clean one small area around you."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Change your clothes and open a window."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Light a candle or spray a scent you enjoy."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Write down what feels 'off' today."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Declutter your desk or room for 5 minutes."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Do a 1-minute stretch or movement reset."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Write down 3 accomplishments from today."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Record a short voice memo of how you feel."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Take a picture of something that inspires you."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Celebrate yourself with a little treat."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Share something positive with a friend."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Write down one thing that makes you feel powerful."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Dance like no one's watching."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Name what surprised you today."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Take 10 deep breaths while holding your chest."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Ground yourself by naming 5 things you see."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Write down what's real vs. what you fear."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Wrap yourself in something soft."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Repeat a calming affirmation 3 times."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Reach out to someone who helps you feel safe."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Close your eyes and rest for 5 minutes."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Choose just one task to focus on today."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Say no to something small."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Lay flat and let your muscles relax."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Turn off notifications for 30 minutes."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Sip a warm drink slowly."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Stretch your shoulders and neck gently."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Sit in silence for 3 minutes."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Do a short body scan meditation."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Write down what peace means to you today."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Light a candle and simply watch it flicker."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Lay down and listen to calming music."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Take a slow walk without your phone."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Spend a moment outside in nature."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Drink water and take a few mindful breaths."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Do something simple you enjoy (tea, music, etc.)."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Observe your surroundings without judgment."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Gently stretch or move your body."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Take a photo of something mundane but beautiful."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Note your thoughts, even if they feel boring."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Make a short list of small wins today."
+  },
+  {
+    "mood": "Confident",
+    "text": "Stand tall and say something powerful out loud."
+  },
+  {
+    "mood": "Confident",
+    "text": "Write down 3 strengths you're proud of."
+  },
+  {
+    "mood": "Confident",
+    "text": "Do a power pose for 1 minute."
+  },
+  {
+    "mood": "Confident",
+    "text": "Look in the mirror and compliment yourself."
+  },
+  {
+    "mood": "Confident",
+    "text": "Reflect on something brave you've done recently."
+  },
+  {
+    "mood": "Confident",
+    "text": "Visualize yourself succeeding at something important."
+  },
+  {
+    "mood": "Confident",
+    "text": "Say 'I've got this' — and mean it."
+  }
+]
