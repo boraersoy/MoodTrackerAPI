@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const { User, Mood, Task, Quote, Avatar } = require('./models');
+const { User, Mood, Task, Quote, Avatar, Mood_Type, Reason } = require('./models');
 
 // Load environment variables
 dotenv.config();
@@ -20,8 +20,9 @@ mongoose.connect(process.env.MONGODB_URI)
 // Routes will be added here
 const routes = require('./routes');
 app.use('/api', routes);
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

@@ -24,7 +24,8 @@ const {
   registerUser,
   loginUser,
   getUserProfile,
-  updateAvatar
+  updateAvatar,
+  setReminder
 } = require('../controllers');
 
 // Mood Routes
@@ -62,5 +63,11 @@ router.route('/users/me')
 
 router.route('/users/avatar')
   .patch(auth, updateAvatar);
+
+router.route('/users/:id/avatar')
+  .patch(auth, updateAvatar); // Update avatar for a specific user
+
+router.route('/users/reminder')
+  .post(auth, setReminder); // Set reminder for the user
 
 module.exports = router;

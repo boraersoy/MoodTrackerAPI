@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { User, Mood, Task, Quote, Avatar } = require('../models');
+const { get } = require('../routes');
 require('dotenv').config();
 
 // ======================
@@ -211,11 +212,66 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+
+exports.getStreak = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('streak last_mood_date');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Calculate current streak
+    const today = new Date();
+    const lastMoodDate = user.last_mood_date ? new Date(user.last_mood_date) : null;
+    if (!lastMoodDate) {
+      // If no last mood date, set streak to 0
+      user.streak.current = 0;
+      await user.save();
+      return res.json(user.streak);
+    }
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    if (lastMoodDate != yesterday && lastMoodDate != today) {
+      // If last mood was not yesterday or today, reset streak
+      user.streak.current = 0; // Reset streak if last mood was not yesterday
+      await user.save();
+    }
+    // return current streak
+    res.json(user.streak);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.setReminder = async (req, res) => {
+  try {
+    const { time, enabled } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        reminder: {
+          time: time || '21:00', // Default reminder time
+          enabled: enabled !== undefined ? enabled : false // Default to disabled
+        }
+      },
+      { new: true }
+    ).select('-password_hash');
+    res.json(user.reminder);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
       .select('-password_hash')
       .populate('avatar_id');
+    this.getStreak(req, res); // Call getStreak to ensure streak is calculated
+    streak = user.streak || { current: 0, longest: 0 };
+    user.reminder = {
+      time: user.reminder.time || '21:00', // Default reminder time
+      enabled: user.reminder.enabled || false // Reminder disabled by default
+    };
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -270,37 +326,3 @@ exports.updateMoodType = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
-
-
-// ======================
-// Streak Controllers
-// ======================
-
-exports.getStreak = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('streak last_mood_date');
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    // Calculate current streak
-    const today = new Date();
-    const lastMoodDate = user.last_mood_date ? new Date(user.last_mood_date) : null;
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    if (lastMoodDate != yesterday && lastMoodDate != today) {
-      // If last mood was not yesterday or today, reset streak
-      user.streak.current = 0; // Reset streak if last mood was not yesterday
-      await user.save();
-    }
-    // return current streak
-    res.json(user.streak);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-
-// update streak logic
-exports.updateStreak = async (req, res) => {
-if (!user.last_mood_date || user.lastMoodDate.toDateString() != new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString()) {
-  user.streak.current = 0}; // Reset current streak if last mood was not today
-}

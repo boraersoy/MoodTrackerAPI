@@ -5,10 +5,12 @@ const quoteSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  // CHANGED
   mood_type: { 
-    type: String, 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Mood_Type', 
     required: true 
-  }
+  },
 });
 
 module.exports = mongoose.model('Quote', quoteSchema);

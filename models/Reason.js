@@ -6,4 +6,4 @@ const reasonSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Reason', moodSchema);
+module.exports = mongoose.model('Reason', reasonSchema);

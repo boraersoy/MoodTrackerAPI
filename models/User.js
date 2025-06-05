@@ -18,7 +18,31 @@ const userSchema = new mongoose.Schema({
   },
   created_at: { 
     type: Date, 
-    default: Date.now 
+    default: Date.now
+  },
+  // ADDED FIELDS
+  reminder: {
+    time: { 
+      type: String, 
+      default: '21:00' // Default reminder time
+    },
+    enabled: { 
+      type: Boolean, 
+      default: false // Reminder disabled by default
+    }
+  },
+  streak: {
+    current: { 
+      type: Number, 
+      default: 0 // Current streak count
+    },
+    longest: { 
+      type: Number, 
+      default: 0 // Longest streak count
+    }
+  },
+  last_mood_date: { 
+    type: Date // Date of the last mood entry
   }
 });
 
