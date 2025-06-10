@@ -1,0 +1,386 @@
+[
+  {
+    "mood": "Anxious",
+    "text": "You don't have to control your thoughts. You just have to stop letting them control you. - Dan Millman"
+  },
+  {
+    "mood": "Anxious",
+    "text": "Nothing diminishes anxiety faster than action."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Take life day by day and be grateful for the little things."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Just because you feel anxious doesn't mean you're in danger."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Breathe. You've survived 100% of your bad days."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Almost everything will work again if you unplug it for a few minutes... including you. - Anne Lamott"
+  },
+  {
+    "mood": "Anxious",
+    "text": "Don't believe everything you think."
+  },
+  {
+    "mood": "Anxious",
+    "text": "Sometimes the most productive thing you can do is rest."
+  },
+  {
+    "mood": "Sad",
+    "text": "Tears come from the heart and not from the brain. - Leonardo da Vinci"
+  },
+  {
+    "mood": "Sad",
+    "text": "It's okay to feel sad. Let yourself rest."
+  },
+  {
+    "mood": "Sad",
+    "text": "Crying is not a weakness. It's emotional strength."
+  },
+  {
+    "mood": "Sad",
+    "text": "Dark days don't last forever. You're getting through this."
+  },
+  {
+    "mood": "Sad",
+    "text": "Sometimes we just need to feel it to heal it."
+  },
+  {
+    "mood": "Sad",
+    "text": "Be gentle with yourself. You're doing the best you can."
+  },
+  {
+    "mood": "Sad",
+    "text": "Stars can't shine without darkness."
+  },
+  {
+    "mood": "Sad",
+    "text": "You are not alone in how you feel."
+  },
+  {
+    "mood": "Angry",
+    "text": "Speak when you are angry, and you'll make the best speech you'll ever regret. - Ambrose Bierce"
+  },
+  {
+    "mood": "Angry",
+    "text": "Your anger is valid — just don't let it control you."
+  },
+  {
+    "mood": "Angry",
+    "text": "Channel your energy into something that builds, not breaks."
+  },
+  {
+    "mood": "Angry",
+    "text": "Take a pause, not a punch."
+  },
+  {
+    "mood": "Angry",
+    "text": "Don't let someone else's chaos steal your peace."
+  },
+  {
+    "mood": "Angry",
+    "text": "Anger is a signal, not a solution."
+  },
+  {
+    "mood": "Angry",
+    "text": "Reacting in anger rarely leads to wisdom."
+  },
+  {
+    "mood": "Angry",
+    "text": "Breath is your anchor in the storm."
+  },
+  {
+    "mood": "Happy",
+    "text": "Happiness is not something ready made. It comes from your own actions. - Dalai Lama"
+  },
+  {
+    "mood": "Happy",
+    "text": "Let your smile change the world."
+  },
+  {
+    "mood": "Happy",
+    "text": "Enjoy this moment fully — you deserve it."
+  },
+  {
+    "mood": "Happy",
+    "text": "Happiness looks good on you."
+  },
+  {
+    "mood": "Happy",
+    "text": "Let your joy be contagious."
+  },
+  {
+    "mood": "Happy",
+    "text": "You are allowed to be proud of your happiness."
+  },
+  {
+    "mood": "Happy",
+    "text": "Capture this feeling and come back to it when needed."
+  },
+  {
+    "mood": "Happy",
+    "text": "Savor the light when it's bright."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Even ordinary days are part of an extraordinary life."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Neutral moments are the bridges between highs and lows."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Stillness has value too."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Not every day needs to be a big day."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Rest is not inactivity, it's preparation."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Quiet days help you hear yourself better."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Neutral doesn't mean empty — it means balance."
+  },
+  {
+    "mood": "Neutral",
+    "text": "Nothing is wrong. Nothing is right. Just is."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Your surroundings don't define your worth."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Step away from what drains you."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Sometimes you need to declutter both your space and your mind."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Release what doesn't serve you."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "It’s okay to feel gross. Breathe and reset."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Change your surroundings, change your state."
+  },
+  {
+    "mood": "Disgusting",
+    "text": "Wash away the day and start again."
+  },
+  {
+    "mood": "Loved",
+    "text": "You are loved more than you know."
+  },
+  {
+    "mood": "Loved",
+    "text": "Let love in — you are worthy of it."
+  },
+  {
+    "mood": "Loved",
+    "text": "You radiate warmth."
+  },
+  {
+    "mood": "Loved",
+    "text": "Love is not a weakness, it's your strength."
+  },
+  {
+    "mood": "Loved",
+    "text": "You matter deeply to someone."
+  },
+  {
+    "mood": "Loved",
+    "text": "Your presence is a gift."
+  },
+  {
+    "mood": "Loved",
+    "text": "Let yourself feel safe in love."
+  },
+  {
+    "mood": "Amazing",
+    "text": "You're a walking example of what's possible."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Your glow is the result of your growth."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Feel proud — you've earned this."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Amazing moments are yours to keep."
+  },
+  {
+    "mood": "Amazing",
+    "text": "You are your own success story."
+  },
+  {
+    "mood": "Amazing",
+    "text": "Celebrate your shine."
+  },
+  {
+    "mood": "Amazing",
+    "text": "You are enough, more than enough."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Unexpected doesn't mean unprepared."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "You can handle more than you think."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Even fear means you're trying."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Bravery starts with showing up."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Fear is a sign of growth."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "Feel it, then move forward anyway."
+  },
+  {
+    "mood": "Surprised/Scared",
+    "text": "This discomfort won't last forever."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "You are allowed to pause."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "One small step is still progress."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "You don't have to do it all at once."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Rest is productive too."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "You're not lazy — you're recharging."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Slow down. You're allowed to breathe."
+  },
+  {
+    "mood": "Overwhelmed/Tired",
+    "text": "Doing nothing is doing something."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Peace is the result of training your mind to process life as it is."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Inhale peace. Exhale doubt."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Stillness is not the absence of noise, it's the presence of clarity."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Let the quiet become your power."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Serenity begins when expectation ends."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "Peace isn't passive. It's chosen."
+  },
+  {
+    "mood": "Peaceful",
+    "text": "You are rooted, calm, and strong."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "We all mess up. That's how we learn."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "What feels huge now will be funny later."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "You're allowed to be imperfect."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "The bravest people are willing to look silly sometimes."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "This too shall pass — and probably make a great story."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Everyone has their cringe moments. It's part of growing."
+  },
+  {
+    "mood": "Embarrassed",
+    "text": "Mistakes are proof you're trying."
+  },
+  {
+    "mood": "Confident",
+    "text": "Walk in like you own the place — or at least belong there."
+  },
+  {
+    "mood": "Confident",
+    "text": "Confidence comes from action, not perfection."
+  },
+  {
+    "mood": "Confident",
+    "text": "Your shine doesn't dim anyone else's light."
+  },
+  {
+    "mood": "Confident",
+    "text": "You've worked for this feeling. Wear it proudly."
+  },
+  {
+    "mood": "Confident",
+    "text": "You don't need permission to be great."
+  },
+  {
+    "mood": "Confident",
+    "text": "Be your own hype person."
+  },
+  {
+    "mood": "Confident",
+    "text": "Confidence is quiet — insecurities are loud."
+  }
+]

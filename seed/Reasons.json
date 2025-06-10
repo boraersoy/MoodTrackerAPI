@@ -1,0 +1,16 @@
+[
+  { "reason": "Family" },
+  { "reason": "Relationship" },
+  { "reason": "Friends" },
+  { "reason": "School / Work" },
+  { "reason": "Health" },
+  { "reason": "Self-esteem" },
+  { "reason": "Finance" },
+  { "reason": "Sleep" },
+  { "reason": "Routine" },
+  { "reason": "Weather" },
+  { "reason": "Loneliness" },
+  { "reason": "Achievement" },
+  { "reason": "Stress" },
+  { "reason": "Boredom" }
+]

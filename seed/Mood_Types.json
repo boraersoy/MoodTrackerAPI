@@ -1,0 +1,15 @@
+[
+  { "name": "Happy" },
+  { "name": "Neutral" },
+  { "name": "Sad" },
+  { "name": "Disgusting" },
+  { "name": "Angry" },
+  { "name": "Loved" },
+  { "name": "Amazing" },
+  { "name": "Surprised/Scared" },
+  { "name": "Overwhelmed/Tired" },
+  { "name": "Peaceful" },
+  { "name": "Anxious" },
+  { "name": "Embarrassed" },
+  { "name": "Confident" }
+]
