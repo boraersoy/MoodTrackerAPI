@@ -11,13 +11,15 @@ exports.createMood = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     const moodData = {
-      ...req.body,
-      user_id: user._id // Attach authenticated user
+      user_id: user._id, // Attach authenticated user
+      mood_type: req.body.mood_type, // Ensure mood_type is included
+      reason: req.body.reason || null , // Optional reason for the mood
+      note: req.body.note || '', // Optional note for the mood
     };
     const mood = new Mood(moodData);
     await mood.save();
     // Update user's last mood date and streak
-    user.last_mood_date = new Date().today();
+    user.last_mood_date = new Date();
     user.streak.current += 1; // Increment current streak
     if (user.streak.current > user.streak.longest) {
       user.streak.longest = user.streak.current; // Update longest streak if current is greater

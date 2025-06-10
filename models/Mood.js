@@ -6,9 +6,6 @@ const moodSchema = new mongoose.Schema({
     ref: 'User', 
     required: true 
   },
-  data: { 
-    type: Object 
-  },
   note: { 
     type: String 
   },
