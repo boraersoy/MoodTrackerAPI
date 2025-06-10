@@ -12,8 +12,8 @@ exports.createMood = async (req, res) => {
     const user = await User.findById(req.user._id);
     const moodData = {
       user_id: user._id, // Attach authenticated user
-      mood_type: req.body.mood_type, // Ensure mood_type is included
-      reason: req.body.reason || null , // Optional reason for the mood
+      mood_type: req.body.mood_type._id, // Ensure mood_type is included
+      reason: req.body.reason._id || null , // Optional reason for the mood
       note: req.body.note || '', // Optional note for the mood
     };
     const mood = new Mood(moodData);
