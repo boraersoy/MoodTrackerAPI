@@ -43,9 +43,9 @@ exports.createMood = async (req, res) => {
         name: req.body.mood_type, 
       }),
       // Optional reason for the mood
-      reason: await Mood_Type.findOne({ 
+      reason: await Reason.findOne({ 
         name: req.body.reason, 
-      }) || null,
+      }) || null, // If reason is not provided, set to null
       // Optional note for the mood
       note: req.body.note || '',
     };
@@ -73,6 +73,14 @@ exports.createMood = async (req, res) => {
 };
 
 exports.getMoods = async (req, res) => {
+  // METHOD: GET
+  // URL: /moods
+  // DESCRIPTION: Get all moods for the authenticated user
+  // QUERY: mood_type (optional), start_date (optional), end_date (optional)
+  // RESPONSE: Array of moods
+  // Example: GET /moods
+  // Example: GET /moods?mood_type=happy&start_date=2023-01-01&end_date=2023-01-31
+  // AUTH: Required
   try {
     console.log('Fetching moods for user:', req.user._id);
     const { mood_type, start_date, end_date } = req.query;
@@ -93,14 +101,34 @@ exports.getMoods = async (req, res) => {
   }
 };
 
-exports.getMoodById = async (req, res) => {
+exports.getMoodByDate = async (req, res) => {
+  // METHOD: GET
+  // URL: /moods/:id
+  // DESCRIPTION: Get a specific mood by Date for the authenticated user
+  // PARAMS: date (required)
+  // RESPONSE: Mood object
+  // Example: GET /moods/2025-01-01
+  // AUTH: Required
   try {
-    const mood = await Mood.findOne({ 
-      _id: req.params.id, 
+    console.log('Fetching mood for user:', req.user._id, 'on date:', req.params.date);
+    // Ensure the date is in the correct format
+    const date = new Date(req.params.date);
+    const mood = await Mood.findOne({
+      // Find mood by date
+      // Ensure the date is set to the start and end of the day 
+      created_at: {
+        $gte: new Date(date.setHours(0, 0, 0, 0)),
+        $lt: new Date(date.setHours(23, 59, 59, 999))
+      }, 
+      // Ensure the mood belongs to the authenticated user
       user_id: req.user._id 
     });
+    // If mood is not found, return 404
     if (!mood) return res.status(404).json({ error: 'Mood not found' });
-    res.json(mood);
+    // Return the mood
+    console.log('Mood found:', mood);
+    // Return the mood object
+    res.status(200).json(mood);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
