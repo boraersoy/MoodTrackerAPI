@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
 const reasonSchema = new mongoose.Schema({
-  reason: { 
-    type: String 
+  name: { 
+    type: String ,
+    required: true,
+    unique: true
   }
 });
 

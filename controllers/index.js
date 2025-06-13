@@ -9,20 +9,57 @@ require('dotenv').config();
 // Mood Controllers
 // ======================
 exports.createMood = async (req, res) => {
+  // METHOD: POST
+  // URL: /moods
+  // DESCRIPTION: Create a new mood for the authenticated user
+  // BODY: { mood_type: String, OPTIONAL reason: String, OPTIONAL note: String }
+  // AUTH: Required
   try {
+    // get user id from authenticated user
     const user = await User.findById(req.user._id);
     console.log(user);
+    // check if user exists
     if (!user) return res.status(404).json({ error: 'User not found' });
+    // check if mood has been recorded today
+    const today = new Date();
+    const existingMood = await Mood.findOne({
+      user_id: user._id,
+      created_at: {
+        $gte: new Date(today.setHours(0, 0, 0, 0)),
+        $lt: new Date(today.setHours(23, 59, 59, 999))
+      }
+    });
+    // If mood already exists for today, return error
+    if (existingMood) {
+      return res.status(400).json({ error: 'Mood already recorded for today' });
+    }
+    // Create new mood
+    console.log('Creating mood for user:', user._id);
     const moodData = {
-      user_id: user._id, // Attach authenticated user
-      mood_type: req.body.mood_type, // Ensure mood_type is included
-      reason: req.body.reason || null, // Optional reason for the mood
-      note: req.body.note || '', // Optional note for the mood
+      // Attach authenticated user
+      user_id: user._id,
+      // Ensure mood_type is included
+      mood_type: await Mood_Type.findOne({ 
+        name: req.body.mood_type, 
+      }),
+      // Optional reason for the mood
+      reason: await Mood_Type.findOne({ 
+        name: req.body.reason, 
+      }) || null,
+      // Optional note for the mood
+      note: req.body.note || '',
     };
+    // save mood to database
+    console.log('Mood data:', moodData);
+    // if mood_type is not provided, return error
+    if (!moodData.mood_type) {
+      return res.status(400).json({ error: 'Mood type is required' });
+    }
+    // Create mood instance and save it
     const mood = new Mood(moodData);
     await mood.save();
     // Update user's last mood date and streak
-    user.last_mood_date = new Date();
+    user.last_mood_date = today; // Set last mood date to today
     user.streak.current += 1; // Increment current streak
     if (user.streak.current > user.streak.longest) {
       user.streak.longest = user.streak.current; // Update longest streak if current is greater
@@ -212,7 +249,9 @@ exports.registerUser = async (req, res) => {
     const user = new User({ 
       email, 
       password_hash: hashedPassword, 
-      avatar_id 
+      avatar_id,
+      streak: { current: 0, longest: 0 }, // Initialize streak
+      last_mood_date: null, // Initialize last mood date
     });
     await user.save();
     
