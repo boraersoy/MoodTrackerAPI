@@ -41,19 +41,20 @@ router.route('/moods/:id')
   .patch(auth, updateMood)
   .delete(auth, deleteMood);
 
+
   // Mood Type Routes
 router.route('/mood-types')
   .get(getMoodTypes);
 
 // Task Routes
 router.route('/tasks')
-  .get(getTasks)
+  .get(auth, getTasks)
   .post(auth, createTask);
 
 // Quote Routes
 router.route('/quotes')
   .get(getQuotes);
-
+    
 // Avatar Routes
 router.route('/avatars')
   .get(getAvatars);
@@ -76,5 +77,7 @@ router.route('/users/:id/avatar')
 
 router.route('/users/reminder')
   .post(auth, setReminder); // Set reminder for the user
+
+
 
 module.exports = router;

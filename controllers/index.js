@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { User, Mood, Mood_Type ,Reason, Task, Quote, Avatar } = require('../models');
+const { getTodaysMood } = require('./index'); // Import the function
 const { get } = require('../routes');
 require('dotenv').config();
 
@@ -94,16 +95,52 @@ exports.deleteMood = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+exports.getTodaysMood = async (req, res) => {
+  try {
+    
+
+    
+    
+    res.json(mood);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 // ======================
 // Task Controllers
 // ======================
 exports.getTasks = async (req, res) => {
   try {
-    const { mood_type } = req.query;
-    const filter = mood_type ? { mood_type } : {};
-    const tasks = await Task.find(filter);
-    res.json(tasks);
+    console.log('Fetching tasks for user:', req.user._id);
+    const today = new Date();
+    const todays_mood = await Mood.findOne({
+      user_id: req.user._id,
+      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+    });
+    console.log(req.user._id);
+    console.log('Todays Mood:', todays_mood);
+    if (!todays_mood) {
+      return res.status(404).json({ error: 'No mood found for today' });
+    }
+    const filter = { mood_type: todays_mood.mood_type };
+    console.log('Filter:', filter);
+    // Find mood type name
+    const moodType = await Mood_Type.findById(todays_mood.mood_type);
+    if (!moodType) {
+      return res.status(404).json({ error: 'Mood type not found' });
+    }
+    mood_type_name = moodType.name;
+    const tasks = await Task.find({ mood: mood_type_name });
+    if (tasks.length === 0) {
+      return res.status(404).json({ error: 'No tasks found for the mood type' });
+    }
+    const randomIndex = Math.floor(Math.random() * tasks.length);
+    const task = tasks[randomIndex];
+
+    console.log("Tasks", tasks);
+    console.log("Random Task:", task);
+    res.json(task);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
