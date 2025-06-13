@@ -72,6 +72,122 @@ exports.createMood = async (req, res) => {
   }
 };
 
+exports.getTodaysMood = async (req, res) => {
+  // METHOD: GET
+  // URL: /mood/
+  // DESCRIPTION: Get today's mood for the authenticated user
+  // RESPONSE: Mood object
+  // Example: GET /mood
+  // AUTH: Required
+  try {
+    // Ensure the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    // Fetch today's mood for the authenticated user
+    console.log('Fetching today\'s mood for user:', req.user._id);
+    const today = new Date();
+    const mood = await Mood.findOne({
+      user_id: req.user._id,
+      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+    });
+    if (!mood) {
+      return res.status(404).json({ error: 'No mood found for today' });
+    }
+    console.log('Today\'s Mood:', mood);
+    res.status(200).json(mood);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+exports.updateMood = async (req, res) => {
+  // METHOD: PATCH
+  // URL: /mood/
+  // DESCRIPTION: Update today's mood for the authenticated user
+  // BODY: { mood_type: String, OPTIONAL reason: String, OPTIONAL note: String }
+  // RESPONSE: Updated mood object
+  // Example: PATCH /mood/
+  // AUTH: Required
+  try {
+    // Ensure the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    // Fetch today's mood for the authenticated user
+    console.log('Fetching today\'s mood for user:', req.user._id);
+    const today = new Date();
+    const mood = await Mood.findOneAndUpdate({
+      user_id: req.user._id,
+      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+    }, {
+      mood_type: await Mood_Type.findOne({ 
+        name: req.body.mood_type, 
+      }),
+      // Optional reason for the mood
+      reason: await Reason.findOne({ 
+        name: req.body.reason, 
+      }) || null, // If reason is not provided, set to null
+      // Optional note for the mood
+      note: req.body.note || '',
+    }, { new: true });
+    if (!mood) {
+      return res.status(404).json({ error: 'No mood found for today' });
+    }
+    console.log('Today\'s New Mood:', mood);
+    res.status(200).json(mood);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// DEPRECATED
+exports.deleteMood = async (req, res) => {
+  try {
+    const mood = await Mood.findOneAndDelete({ 
+      _id: req.params.id, 
+      user_id: req.user._id 
+    });
+    if (!mood) return res.status(404).json({ error: 'Mood not found' });
+    res.status(204).send();
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.getMoodByDate = async (req, res) => {
+  // METHOD: GET
+  // URL: /moods/:date
+  // DESCRIPTION: Get a specific mood by Date for the authenticated user
+  // PARAMS: date (required)
+  // RESPONSE: Mood object
+  // Example: GET /moods/:date?2025-01-01
+  // AUTH: Required
+  try {
+    console.log('Fetching mood for user:', req.user._id, 'on date:', req.params.date);
+    // Ensure the date is in the correct format
+    const date = new Date(req.params.date);
+    const mood = await Mood.findOne({
+      // Find mood by date
+      // Ensure the date is set to the start and end of the day 
+      created_at: {
+        $gte: new Date(date.setHours(0, 0, 0, 0)),
+        $lt: new Date(date.setHours(23, 59, 59, 999))
+      }, 
+      // Ensure the mood belongs to the authenticated user
+      user_id: req.user._id 
+    });
+    // If mood is not found, return 404
+    if (!mood) return res.status(404).json({ error: 'Mood not found' });
+    // Return the mood
+    console.log('Mood found:', mood);
+    // Return the mood object
+    res.status(200).json(mood);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getMoods = async (req, res) => {
   // METHOD: GET
   // URL: /moods
@@ -101,111 +217,50 @@ exports.getMoods = async (req, res) => {
   }
 };
 
-exports.getMoodByDate = async (req, res) => {
-  // METHOD: GET
-  // URL: /moods/:id
-  // DESCRIPTION: Get a specific mood by Date for the authenticated user
-  // PARAMS: date (required)
-  // RESPONSE: Mood object
-  // Example: GET /moods/2025-01-01
-  // AUTH: Required
-  try {
-    console.log('Fetching mood for user:', req.user._id, 'on date:', req.params.date);
-    // Ensure the date is in the correct format
-    const date = new Date(req.params.date);
-    const mood = await Mood.findOne({
-      // Find mood by date
-      // Ensure the date is set to the start and end of the day 
-      created_at: {
-        $gte: new Date(date.setHours(0, 0, 0, 0)),
-        $lt: new Date(date.setHours(23, 59, 59, 999))
-      }, 
-      // Ensure the mood belongs to the authenticated user
-      user_id: req.user._id 
-    });
-    // If mood is not found, return 404
-    if (!mood) return res.status(404).json({ error: 'Mood not found' });
-    // Return the mood
-    console.log('Mood found:', mood);
-    // Return the mood object
-    res.status(200).json(mood);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.updateMood = async (req, res) => {
-  try {
-    const mood = await Mood.findOneAndUpdate(
-      { _id: req.params.id, user_id: req.user._id },
-      req.body,
-      { new: true }
-    );
-    if (!mood) return res.status(404).json({ error: 'Mood not found' });
-    res.json(mood);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-exports.deleteMood = async (req, res) => {
-  try {
-    const mood = await Mood.findOneAndDelete({ 
-      _id: req.params.id, 
-      user_id: req.user._id 
-    });
-    if (!mood) return res.status(404).json({ error: 'Mood not found' });
-    res.status(204).send();
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-exports.getTodaysMood = async (req, res) => {
-  try {
-    
-
-    
-    
-    res.json(mood);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-
 // ======================
 // Task Controllers
 // ======================
 exports.getTasks = async (req, res) => {
+  // METHOD: GET
+  // URL: /tasks
+  // DESCRIPTION: Get a random task based on today's mood for the authenticated user
+  // RESPONSE: Task object
+  // Example: GET /tasks
+  // AUTH: Required
   try {
     console.log('Fetching tasks for user:', req.user._id);
     const today = new Date();
+    // get today's mood for the authenticated user
     const todays_mood = await Mood.findOne({
       user_id: req.user._id,
       created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
     });
-    console.log(req.user._id);
     console.log('Todays Mood:', todays_mood);
+    // If no mood found for today, return 404
     if (!todays_mood) {
       return res.status(404).json({ error: 'No mood found for today' });
     }
     const filter = { mood_type: todays_mood.mood_type };
     console.log('Filter:', filter);
     // Find mood type name
+    // find mood type by id
     const moodType = await Mood_Type.findById(todays_mood.mood_type);
     if (!moodType) {
       return res.status(404).json({ error: 'Mood type not found' });
     }
+    // find mood type name
     mood_type_name = moodType.name;
+    // find tasks by mood type name
     const tasks = await Task.find({ mood: mood_type_name });
+    // If no tasks found for the mood type, return 404
     if (tasks.length === 0) {
       return res.status(404).json({ error: 'No tasks found for the mood type' });
     }
+    // Select a random task from the tasks array
     const randomIndex = Math.floor(Math.random() * tasks.length);
     const task = tasks[randomIndex];
-
-    console.log("Tasks", tasks);
-    console.log("Random Task:", task);
-    res.json(task);
+    // Return the random task
+    res.status(200).json(task);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -414,6 +469,7 @@ exports.getMoodTypes = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 exports.createMoodType = async (req, res) => {
   try {
     const moodType = new Mood_Type(req.body);
@@ -423,6 +479,7 @@ exports.createMoodType = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 exports.updateMoodType = async (req, res) => {
   try {
     const moodType = await Mood_Type.findByIdAndUpdate(

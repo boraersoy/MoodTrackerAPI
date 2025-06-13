@@ -10,6 +10,7 @@ const {
   getMoodByDate,
   updateMood,
   deleteMood,
+  getTodaysMood,
   // Mood Type Controllers
   getMoodTypes,
   
@@ -32,15 +33,17 @@ const {
 } = require('../controllers');
 
 // Mood Routes
-router.route('/moods')
+router.route('/mood')
   .post(auth, createMood)
+  .get(auth, getTodaysMood)
+  .patch(auth, updateMood);
+  
+router.route('/moods')
   .get(auth, getMoods);
 
 router.route('/moods/:date')
   .get(auth, getMoodByDate)
-  .patch(auth, updateMood)
-  .delete(auth, deleteMood);
-
+  
 
   // Mood Type Routes
 router.route('/mood-types')
