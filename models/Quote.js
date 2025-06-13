@@ -5,7 +5,6 @@ const quoteSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  // CHANGED
   mood_type: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Mood_Type', 

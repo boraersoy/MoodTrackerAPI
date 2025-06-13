@@ -5,7 +5,6 @@ const taskSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  
   mood_type: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Mood_Type', 

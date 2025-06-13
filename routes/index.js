@@ -29,7 +29,8 @@ const {
   loginUser,
   getUserProfile,
   updateAvatar,
-  setReminder
+  setReminder,
+  getStreak
 } = require('../controllers');
 
 // Mood Routes
@@ -56,7 +57,7 @@ router.route('/tasks')
 
 // Quote Routes
 router.route('/quotes')
-  .get(getQuotes);
+  .get(auth, getQuotes);
     
 // Avatar Routes
 router.route('/avatars')
@@ -80,6 +81,9 @@ router.route('/users/:id/avatar')
 
 router.route('/users/reminder')
   .post(auth, setReminder); // Set reminder for the user
+
+router.route('/users/streak')
+  .get(auth, getStreak); // Get user's streak
 
 
 

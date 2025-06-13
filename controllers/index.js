@@ -241,7 +241,6 @@ exports.getTasks = async (req, res) => {
       return res.status(404).json({ error: 'No mood found for today' });
     }
     const filter = { mood_type: todays_mood.mood_type };
-    console.log('Filter:', filter);
     // Find mood type name
     // find mood type by id
     const moodType = await Mood_Type.findById(todays_mood.mood_type);
@@ -251,7 +250,7 @@ exports.getTasks = async (req, res) => {
     // find mood type name
     mood_type_name = moodType.name;
     // find tasks by mood type name
-    const tasks = await Task.find({ mood: mood_type_name });
+    const tasks = await Task.find({ mood_name: mood_type_name });
     // If no tasks found for the mood type, return 404
     if (tasks.length === 0) {
       return res.status(404).json({ error: 'No tasks found for the mood type' });
@@ -259,6 +258,7 @@ exports.getTasks = async (req, res) => {
     // Select a random task from the tasks array
     const randomIndex = Math.floor(Math.random() * tasks.length);
     const task = tasks[randomIndex];
+    console.log('Random Task:', task);
     // Return the random task
     res.status(200).json(task);
   } catch (err) {
@@ -268,6 +268,10 @@ exports.getTasks = async (req, res) => {
 
 exports.createTask = async (req, res) => {
   try {
+    // METHOD: POST
+    // URL: /tasks
+    // DESCRIPTION: Create a new task for the authenticated user
+    // BODY: { mood_type: String, task: String }
     const task = new Task(req.body);
     await task.save();
     res.status(201).json(task);
@@ -280,19 +284,46 @@ exports.createTask = async (req, res) => {
 // Quote Controllers
 // ======================
 exports.getQuotes = async (req, res) => {
+  // METHOD: GET
+  // URL: /quotes
+  // DESCRIPTION: Get a random quote based on today's mood for the authenticated user
+  // RESPONSE: Quote object
+  // Example: GET /quotes
+  // AUTH: Required
   try {
-    const { mood_type, random } = req.query;
-    const filter = mood_type ? { mood_type } : {};
-    
-    let query = Quote.find(filter);
-    if (random === 'true') {
-      const count = await Quote.countDocuments(filter);
-      const randomIndex = Math.floor(Math.random() * count);
-      query = Quote.findOne(filter).skip(randomIndex);
+    console.log('Fetching quotes for user:', req.user._id);
+    const today = new Date();
+    // get today's mood for the authenticated user
+    const todays_mood = await Mood.findOne({
+      user_id: req.user._id,
+      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+    });
+    console.log('Todays Mood:', todays_mood);
+    // If no mood found for today, return 404
+    if (!todays_mood) {
+      return res.status(404).json({ error: 'No mood found for today' });
     }
-
-    const quotes = await query.exec();
-    res.json(quotes);
+    const filter = { mood_type: todays_mood.mood_type };
+    // Find mood type name
+    // find mood type by id
+    const moodType = await Mood_Type.findById(todays_mood.mood_type);
+    if (!moodType) {
+      return res.status(404).json({ error: 'Mood type not found' });
+    }
+    // find mood type name
+    mood_type_name = moodType.name;
+    // find quotes by mood type name
+    const quotes = await Quote.find({ mood_name: mood_type_name });
+    // If no quotes found for the mood type, return 404
+    if (quotes.length === 0) {
+      return res.status(404).json({ error: 'No quotes found for the mood type' });
+    }
+    // Select a random task from the tasks array
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    const quote = quotes[randomIndex];
+    console.log('Random Quote:', quote);
+    // Return the random task
+    res.status(200).json(quote);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -316,6 +347,12 @@ exports.getAvatars = async (req, res) => {
 // User Controllers
 // ======================
 exports.registerUser = async (req, res) => {
+  // METHOD: POST
+  // URL: /users/register
+  // DESCRIPTION: Register a new user
+  // BODY: { email: String, password: String, avatar_id: String }
+  // RESPONSE: User object with JWT token
+  // Example: POST /users/register
   try {
     const { email, password, avatar_id } = req.body;
     
@@ -350,6 +387,12 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
+  // METHOD: POST
+  // URL: /users/login
+  // DESCRIPTION: Login an existing user
+  // BODY: { email: String, password: String }
+  // RESPONSE: User object with JWT token
+  // Example: POST /users/login
   try {
     const { email, password } = req.body;
     
@@ -378,12 +421,21 @@ exports.loginUser = async (req, res) => {
 
 
 exports.getStreak = async (req, res) => {
+  // METHOD: GET
+  // URL: /users/streak
+  // DESCRIPTION: Get the current streak for the authenticated user
+  // RESPONSE: Streak object
+  // Example: GET /users/streak
+  // AUTH: Required
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  // Fetch user and calculate streak
   try {
     const user = await User.findById(req.user._id).select('streak last_mood_date');
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Calculate current streak
-    const today = new Date();
     const lastMoodDate = user.last_mood_date ? new Date(user.last_mood_date) : null;
     if (!lastMoodDate) {
       // If no last mood date, set streak to 0
@@ -391,34 +443,55 @@ exports.getStreak = async (req, res) => {
       await user.save();
       return res.json(user.streak);
     }
+    // Check if last mood was before yesterday
+    lastMoodDate.setHours(0, 0, 0, 0); // Set time to start of the day
+    // Calculate yesterday's date
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-
-    if (lastMoodDate != yesterday && lastMoodDate != today) {
+    yesterday.setHours(0, 0, 0, 0); // Set time to start of the day
+    console.log('Today:', today);
+    console.log('Yesterday:', yesterday);
+    console.log('Last Mood Date:', lastMoodDate);
+    if (lastMoodDate < yesterday) {
       // If last mood was not yesterday or today, reset streak
       user.streak.current = 0; // Reset streak if last mood was not yesterday
       await user.save();
     }
     // return current streak
-    res.json(user.streak);
+    res.status(200).json(user.streak);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 exports.setReminder = async (req, res) => {
+  // METHOD: POST
+  // URL: /users/reminder
+  // DESCRIPTION: Set or update the reminder time for the authenticated user
+  // BODY: { time: String in the format HH:MM, enabled: Boolean }
+  // RESPONSE: Reminder object
+  // Example: POST /users/reminder
+  // AUTH: Required
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   try {
+    console.log('Setting reminder for user:', req.user._id);
+    // Ensure user exists
     const { time, enabled } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user._id,
       {
         reminder: {
-          time: time || '21:00', // Default reminder time
-          enabled: enabled !== undefined ? enabled : false // Default to disabled
+          time: time || user.reminder.time, // If time is not provided, keep the existing time
+          enabled: enabled || user.reminder.enabled // If enabled is not provided, keep the existing enabled status
         }
       },
       { new: true }
     ).select('-password_hash');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    // Log the updated reminder
+    console.log('Updated Reminder for user:', user._id, 'Reminder:', user.reminder);
     res.json(user.reminder);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -426,31 +499,51 @@ exports.setReminder = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
+  // METHOD: GET
+  // URL: /users/me
+  // DESCRIPTION: Get the authenticated user's profile
+  // RESPONSE: User object without password
+  // Example: GET /users/me
+  // AUTH: Required
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   try {
+    console.log('Fetching user profile for user:', req.user._id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
     const user = await User.findById(req.user._id)
       .select('-password_hash')
       .populate('avatar_id');
-    this.getStreak(req, res); // Call getStreak to ensure streak is calculated
-    streak = user.streak || { current: 0, longest: 0 };
-    user.reminder = {
-      time: user.reminder.time || '21:00', // Default reminder time
-      enabled: user.reminder.enabled || false // Reminder disabled by default
-    };
-    res.json(user);
+    // Ensure streak is calculated
+    exports.getStreak(req, res); // Call getStreak to ensure streak is calculated
+    // Return user profile without password
+    console.log('User Profile:', user);
+    res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 };
-
+// COULD NOT TRY AS THERE IS NO AVATAR DATA YET
 exports.updateAvatar = async (req, res) => {
   try {
+    // METHOD: PATCH
+    // URL: /users/avatar
+    // DESCRIPTION: Update the avatar for the authenticated user
+    // BODY: { avatar_id: String }
+    // RESPONSE: Updated user object excluding the `password_hash` field
+    // NOTE: The `password_hash` field is explicitly excluded for security reasons
+    // Example: PATCH /users/avatar
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    avatar_id = req.body.avatar_id;
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar_id: req.body.avatar_id },
       { new: true }
     ).select('-password_hash');
     
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -460,9 +553,17 @@ exports.updateAvatar = async (req, res) => {
 // Mood Type Controllers
 // ======================
 exports.getMoodTypes = async (req, res) => {
+  // METHOD: GET
+  // URL: /mood-types
+  // DESCRIPTION: Get all mood types
+  // RESPONSE: Array of mood types
+  // Example: GET /mood-types
+  // AUTH: Required
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   try {
     console.log('Fetching mood types');
-    console.log(req);
     const moodTypes = await Mood_Type.find();
     res.json(moodTypes);
   } catch (err) {
@@ -471,6 +572,13 @@ exports.getMoodTypes = async (req, res) => {
 };
 
 exports.createMoodType = async (req, res) => {
+  // METHOD: POST
+  // URL: /mood-types
+  // DESCRIPTION: Create a new mood type
+  // BODY: { name: String }
+  // RESPONSE: Created mood type object
+  // Example: POST /mood-types
+  // AUTH: Required
   try {
     const moodType = new Mood_Type(req.body);
     await moodType.save();
@@ -482,6 +590,16 @@ exports.createMoodType = async (req, res) => {
 
 exports.updateMoodType = async (req, res) => {
   try {
+    // METHOD: PATCH
+    // URL: /mood-types/:id
+    // DESCRIPTION: Update an existing mood type
+    // BODY: { name: String }
+    // RESPONSE: Updated mood type object
+    // Example: PATCH /mood-types/:id
+    // AUTH: Required
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const moodType = await Mood_Type.findByIdAndUpdate(
       req.params.id,
       req.body,
