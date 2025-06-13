@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+
 const {
   // Mood Controllers
   createMood,
@@ -9,6 +10,8 @@ const {
   getMoodById,
   updateMood,
   deleteMood,
+  // Mood Type Controllers
+  getMoodTypes,
   
   // Task Controllers
   getTasks,
@@ -37,6 +40,10 @@ router.route('/moods/:id')
   .get(auth, getMoodById)
   .patch(auth, updateMood)
   .delete(auth, deleteMood);
+
+  // Mood Type Routes
+router.route('/mood-types')
+  .get(getMoodTypes);
 
 // Task Routes
 router.route('/tasks')

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { User, Mood, Task, Quote, Avatar } = require('../models');
+const { User, Mood, Mood_Type ,Reason, Task, Quote, Avatar } = require('../models');
 const { get } = require('../routes');
 require('dotenv').config();
 
@@ -10,10 +10,12 @@ require('dotenv').config();
 exports.createMood = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
+    console.log(user);
+    if (!user) return res.status(404).json({ error: 'User not found' });
     const moodData = {
       user_id: user._id, // Attach authenticated user
-      mood_type: req.body.mood_type._id, // Ensure mood_type is included
-      reason: req.body.reason._id || null , // Optional reason for the mood
+      mood_type: req.body.mood_type, // Ensure mood_type is included
+      reason: req.body.reason || null, // Optional reason for the mood
       note: req.body.note || '', // Optional note for the mood
     };
     const mood = new Mood(moodData);
@@ -34,6 +36,7 @@ exports.createMood = async (req, res) => {
 
 exports.getMoods = async (req, res) => {
   try {
+    console.log('Fetching moods for user:', req.user._id);
     const { mood_type, start_date, end_date } = req.query;
     const filter = { user_id: req.user._id };
     
@@ -299,6 +302,8 @@ exports.updateAvatar = async (req, res) => {
 // ======================
 exports.getMoodTypes = async (req, res) => {
   try {
+    console.log('Fetching mood types');
+    console.log(req);
     const moodTypes = await Mood_Type.find();
     res.json(moodTypes);
   } catch (err) {
