@@ -7,7 +7,7 @@ const {
   // Mood Controllers
   createMood,
   getMoods,
-  getMoodById,
+  getMoodByDate,
   updateMood,
   deleteMood,
   // Mood Type Controllers
@@ -36,8 +36,8 @@ router.route('/moods')
   .post(auth, createMood)
   .get(auth, getMoods);
 
-router.route('/moods/:id')
-  .get(auth, getMoodById)
+router.route('/moods/:date')
+  .get(auth, getMoodByDate)
   .patch(auth, updateMood)
   .delete(auth, deleteMood);
 
