@@ -332,16 +332,54 @@ exports.getQuotes = async (req, res) => {
 // ======================
 // Avatar Controllers
 // ======================
+  // METHOD: GET
+  // URL: /api/avatars?mood_type=
+  // DESCRIPTION: Get the random avatar for related mood type for users choice of avatar
+  // RESPONSE: avatar image url
+  // Example: GET /avatars?mood_type=happy
+  // AUTH: Required
+
+  // ** for overwhelmed/tired : tired
+  // ** for surprised/scared : scared
+  // ** You can use it for first avatar who asks the mood by mood_type=default (default)
 exports.getAvatars = async (req, res) => {
   try {
     const { mood_type } = req.query;
-    const filter = mood_type ? { mood_type } : {};
+
+    if (!mood_type) {
+      return res.status(400).json({ error: 'mood_type query param is required' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let filter = {
+      gender: user.avatar_gender,
+      age:user.avatar_age,
+      mood_type: mood_type  
+    };
+
+
+
     const avatars = await Avatar.find(filter);
-    res.json(avatars);
+
+    if (avatars.length === 0) {
+      return res.status(404).json({ error: 'No avatars found for the given mood_type' });
+    }
+
+    const randomIndex = Math.floor(Math.random() * avatars.length);
+    const randomAvatar = avatars[randomIndex];
+
+    res.json(randomAvatar);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+
 
 // ======================
 // User Controllers
@@ -354,7 +392,7 @@ exports.registerUser = async (req, res) => {
   // RESPONSE: User object with JWT token
   // Example: POST /users/register
   try {
-    const { email, password, avatar_id } = req.body;
+    const { email, password, avatar_gender, avatar_age } = req.body;
     
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -369,7 +407,8 @@ exports.registerUser = async (req, res) => {
     const user = new User({ 
       email, 
       password_hash: hashedPassword, 
-      avatar_id,
+      avatar_gender,
+      avatar_age,
       streak: { current: 0, longest: 0 }, // Initialize streak
       last_mood_date: null, // Initialize last mood date
     });

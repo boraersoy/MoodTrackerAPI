@@ -61,7 +61,7 @@ router.route('/quotes')
     
 // Avatar Routes
 router.route('/avatars')
-  .get(getAvatars);
+  .get(auth,getAvatars);
 
 // User Routes
 router.route('/users/register')
