@@ -12,10 +12,17 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  avatar_id: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Avatar' 
-  },
+avatar_gender: {
+  type: String,
+  enum: ['male', 'female'], 
+  required: true
+},
+
+avatar_age: {
+  type: String,
+  enum: ['young', 'old'], 
+  required: true
+},
   created_at: { 
     type: Date, 
     default: Date.now
