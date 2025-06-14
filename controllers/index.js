@@ -93,10 +93,10 @@ exports.getTodaysMood = async (req, res) => {
     }
     // Fetch today's mood for the authenticated user
     console.log('Fetching today\'s mood for user:', req.user._id);
-    const today = new Date();
+    const today = new Date().setHours(0, 0, 0, 0); // Set time to start of the day
     const mood = await Mood.findOne({
       user_id: req.user._id,
-      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+      created_at: today
     });
     if (!mood) {
       return res.status(404).json({ error: 'No mood found for today' });
