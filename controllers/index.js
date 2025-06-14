@@ -263,7 +263,8 @@ exports.getMoods = async (req, res) => {
       };
     }
 
-    const moods = await Mood.find(filter).sort({ created_at: -1 });
+    const moods = await Mood.find(filter).populate('mood_type reason')
+    .sort({ created_at: -1 });
     res.json(moods);
   } catch (err) {
     res.status(500).json({ error: err.message });
