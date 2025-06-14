@@ -446,15 +446,14 @@ exports.getStreak = async (req, res) => {
     // Check if last mood was before yesterday
     lastMoodDate.setHours(0, 0, 0, 0); // Set time to start of the day
     // Calculate yesterday's date
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
     yesterday.setHours(0, 0, 0, 0); // Set time to start of the day
-    console.log('Today:', today);
     console.log('Yesterday:', yesterday);
     console.log('Last Mood Date:', lastMoodDate);
     if (lastMoodDate < yesterday) {
-      // If last mood was not yesterday or today, reset streak
-      user.streak.current = 0; // Reset streak if last mood was not yesterday
+      // If last mood was before yesterday, reset streak
+      user.streak.current = 0; // Reset streak if last mood was before yesterday
       await user.save();
     }
     // return current streak
