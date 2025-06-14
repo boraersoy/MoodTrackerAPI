@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { User, Mood, Mood_Type ,Reason, Task, Quote, Avatar } = require('../models');
-const { getTodaysMood } = require('./index'); // Import the function
 const { get } = require('../routes');
 require('dotenv').config();
 
@@ -84,7 +83,7 @@ exports.createMood = async (req, res) => {
   }
 };
 
-exports.getTodaysMood = async (req, res) => {
+exports.getMood = async (req, res) => {
   // METHOD: GET
   // URL: /mood/
   // DESCRIPTION: Get today's mood for the authenticated user
@@ -98,12 +97,7 @@ exports.getTodaysMood = async (req, res) => {
     }
     // Fetch today's mood for the authenticated user
     console.log('Fetching today\'s mood for user:', req.user._id);
-    const today = new Date(); // get today's date
-    today.setUTCHours(0, 0, 0, 0); // Set time to start of the day
-    const mood = await Mood.findOne({
-      user_id: req.user._id,
-      created_at: today
-    }).populate('mood_type reason');
+    const mood = await getTodaysMood(req.user._id);
     // If mood is not found, return 404
     if (!mood) {
       return res.status(404).json({ error: 'No mood found for today' });
@@ -114,6 +108,17 @@ exports.getTodaysMood = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }
+
+async function getTodaysMood(userId) {
+  // This function is used to get today's mood for a user
+  const today = new Date(); // get today's date
+  today.setUTCHours(0, 0, 0, 0); // Set time to start of the day
+  const mood = await Mood.findOne({
+    user_id: userId,
+    created_at: today
+    }).populate('mood_type reason');
+  return mood;
+} // Return the mood object
 
 exports.updateMood = async (req, res) => {
   // METHOD: PATCH
@@ -311,28 +316,17 @@ exports.getTasks = async (req, res) => {
   // AUTH: Required
   try {
     console.log('Fetching tasks for user:', req.user._id);
-    const today = new Date();
     // get today's mood for the authenticated user
-    const todays_mood = await Mood.findOne({
-      user_id: req.user._id,
-      created_at: { $gte: today.setUTCHours(0, 0, 0, 0), $lt: today.setUTCHours(23, 59, 59, 999) }
-    });
+    const todays_mood = await getTodaysMood(req.user._id);
     console.log('Todays Mood:', todays_mood);
     // If no mood found for today, return 404
     if (!todays_mood) {
-      return res.status(404).json({ error: 'No mood found for today' });
+      return res.status(403).json({ error: 'No mood found for today' });
     }
-    const filter = { mood_type: todays_mood.mood_type };
-    // Find mood type name
-    // find mood type by id
-    const moodType = await Mood_Type.findById(todays_mood.mood_type);
-    if (!moodType) {
-      return res.status(404).json({ error: 'Mood type not found' });
-    }
-    // find mood type name
-    mood_type_name = moodType.name;
+    mood_type_name = todays_mood.mood_type.name;
     // find tasks by mood type name
     const tasks = await Task.find({ mood_name: mood_type_name });
+    console.log('Tasks found:', tasks);
     // If no tasks found for the mood type, return 404
     if (tasks.length === 0) {
       return res.status(404).json({ error: 'No tasks found for the mood type' });
@@ -340,7 +334,7 @@ exports.getTasks = async (req, res) => {
     // Select a random task from the tasks array
     const randomIndex = Math.floor(Math.random() * tasks.length);
     const task = tasks[randomIndex];
-    console.log('Random Task:', task);
+    console.log('Task:', task);
     // Return the random task
     res.status(200).json(task);
   } catch (err) {
@@ -348,6 +342,7 @@ exports.getTasks = async (req, res) => {
   }
 };
 
+// NOT USED
 exports.createTask = async (req, res) => {
   try {
     // METHOD: POST
@@ -374,37 +369,26 @@ exports.getQuotes = async (req, res) => {
   // AUTH: Required
   try {
     console.log('Fetching quotes for user:', req.user._id);
-    const today = new Date();
     // get today's mood for the authenticated user
-    const todays_mood = await Mood.findOne({
-      user_id: req.user._id,
-      created_at: { $gte: today.setUTCHours(0, 0, 0, 0), $lt: today.setUTCHours(23, 59, 59, 999) }
-    });
+    const todays_mood = await getTodaysMood(req.user._id);
     console.log('Todays Mood:', todays_mood);
     // If no mood found for today, return 404
     if (!todays_mood) {
-      return res.status(404).json({ error: 'No mood found for today' });
+      return res.status(401).json({ error: 'No mood found for today' });
     }
-    const filter = { mood_type: todays_mood.mood_type };
     // Find mood type name
-    // find mood type by id
-    const moodType = await Mood_Type.findById(todays_mood.mood_type);
-    if (!moodType) {
-      return res.status(404).json({ error: 'Mood type not found' });
-    }
-    // find mood type name
-    mood_type_name = moodType.name;
+    const mood_type_name = todays_mood.mood_type.name;
     // find quotes by mood type name
     const quotes = await Quote.find({ mood_name: mood_type_name });
     // If no quotes found for the mood type, return 404
     if (quotes.length === 0) {
       return res.status(404).json({ error: 'No quotes found for the mood type' });
     }
-    // Select a random task from the tasks array
+    // Select a random quote from the quotes array
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
-    console.log('Random Quote:', quote);
-    // Return the random task
+    console.log('Quote:', quote);
+    // Return the random quote
     res.status(200).json(quote);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -427,40 +411,71 @@ exports.getAvatars = async (req, res) => {
   // ** You can use it for first avatar who asks the mood by mood_type=default (default)
   try {
     const { mood_type } = req.query;
-
+    // Ensure the user is authenticated
     if (!mood_type) {
       return res.status(400).json({ error: 'mood_type query param is required' });
     }
-
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    // Find user by ID
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
+    // find avatar based on filter
     let filter = {
       gender: user.avatar_gender,
       age:user.avatar_age,
       mood_type: mood_type  
     };
-
-
-
     const avatars = await Avatar.find(filter);
 
+    // If no avatars found for the mood type, return 404
     if (avatars.length === 0) {
       return res.status(404).json({ error: 'No avatars found for the given mood_type' });
     }
-
+    
+    // Select a random avatar from the avatars array
     const randomIndex = Math.floor(Math.random() * avatars.length);
-    const randomAvatar = avatars[randomIndex];
-
-    res.json(randomAvatar);
+    const avatar = avatars[randomIndex];
+    // return the avatar
+    res.status(200).json(avatar);
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// COULD NOT TRY AS THERE IS NO AVATAR DATA YET
+exports.updateAvatar = async (req, res) => {
+  try {
+    // METHOD: PATCH
+    // URL: /users/avatar
+    // DESCRIPTION: Update the avatar for the authenticated user
+    // BODY: { avatar_id: String }
+    // RESPONSE: Updated user object excluding the `password_hash` field
+    // NOTE: The `password_hash` field is explicitly excluded for security reasons
+    // Example: PATCH /users/avatar
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    avatar_age = req.body.avatar_age || req.user.avatar_age; // Use existing age if not provided
+    avatar_gender = req.body.avatar_gender || req.user.avatar_gender; // Use existing gender if not provided
+    console.log('Updating avatar for user:', req.user._id, 'to age:', avatar_age, 'gender:', avatar_gender);
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar_age : avatar_age,
+      avatar_gender : avatar_gender},
+      { new: true }
+    ).select('-password_hash');
+    console.log('Updated User:', user);
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 
 
 // ======================
@@ -642,31 +657,6 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-// COULD NOT TRY AS THERE IS NO AVATAR DATA YET
-exports.updateAvatar = async (req, res) => {
-  try {
-    // METHOD: PATCH
-    // URL: /users/avatar
-    // DESCRIPTION: Update the avatar for the authenticated user
-    // BODY: { avatar_id: String }
-    // RESPONSE: Updated user object excluding the `password_hash` field
-    // NOTE: The `password_hash` field is explicitly excluded for security reasons
-    // Example: PATCH /users/avatar
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    avatar_id = req.body.avatar_id;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { avatar_id: req.body.avatar_id },
-      { new: true }
-    ).select('-password_hash');
-    
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
 
 // ======================
 // Mood Type Controllers
@@ -699,6 +689,21 @@ exports.createMoodType = async (req, res) => {
   // Example: POST /mood-types
   // AUTH: Required
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    // Ensure mood type name is provided
+    if (!req.body.name) {
+      return res.status(400).json({ error: 'Mood type name is required' });
+    }
+    // Check if mood type already exists
+    const existingMoodType = await Mood_Type.findOne({ name: req.body.name });
+    if (existingMoodType) {
+      return res.status(400).json({ error: 'Mood type already exists' });
+    }
+    // Create new mood type
+    console.log('Creating new mood type:', req.body.name);
+    // Create mood type instance and save it
     const moodType = new Mood_Type(req.body);
     await moodType.save();
     res.status(201).json(moodType);
@@ -707,25 +712,37 @@ exports.createMoodType = async (req, res) => {
   }
 };
 
-exports.updateMoodType = async (req, res) => {
+exports.deleteMoodType = async (req, res) => {
   try {
-    // METHOD: PATCH
-    // URL: /mood-types/:id
-    // DESCRIPTION: Update an existing mood type
-    // BODY: { name: String }
-    // RESPONSE: Updated mood type object
-    // Example: PATCH /mood-types/:id
+    // METHOD: DELETE
+    // URL: /mood-types/:name
+    // DESCRIPTION: Delete a mood type by name
+    // PARAMS: name (required)
+    // RESPONSE: Success message  
+    // Example: DELETE /mood-types/Happy
     // AUTH: Required
     if (!req.user || !req.user._id) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const moodType = await Mood_Type.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!moodType) return res.status(404).json({ error: 'Mood Type not found' });
-    res.json(moodType);
+    // Ensure mood type name is provided
+    if (!req.params.name) {
+      return res.status(400).json({ error: 'Mood type name is required' });
+    }
+    // find mood type by name
+    const moodType = await Mood_Type.findOne({ name: req.params.name });
+    if (!moodType) {
+      return res.status(404).json({ error: 'Mood type not found' });
+    }
+    // check if moods have been created with this mood type
+    const moodsWithType = await Mood.findOne({ mood_type: moodType._id });
+    if (moodsWithType) {
+      return res.status(400).json({ error: 'Cannot delete mood type with existing moods' });
+    }
+    // Find and delete the mood type
+    console.log('Deleting mood type:', req.params.name);
+    await Mood_Type.deleteOne({ name: req.params.name });
+    // Return success message
+    res.status(200).json({ message: `Mood type ${req.params.name} deleted successfully` });
   }
   catch (err) {
     res.status(400).json({ error: err.message });

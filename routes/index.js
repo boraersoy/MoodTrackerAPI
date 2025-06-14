@@ -10,7 +10,7 @@ const {
   getMoodByDate,
   updateMood,
   deleteMood,
-  getTodaysMood,
+  getMood,
   // Mood Type Controllers
   getMoodTypes,
   getMoodSummaryByDateRange,
@@ -36,7 +36,7 @@ const {
 // Mood Routes
 router.route('/mood')
   .post(auth, createMood)
-  .get(auth, getTodaysMood)
+  .get(auth, getMood)
   .patch(auth, updateMood);
   
 router.route('/moods')
