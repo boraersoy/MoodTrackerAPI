@@ -188,6 +188,59 @@ exports.getMoodByDate = async (req, res) => {
   }
 };
 
+async function getMoodsbro(start_date, end_date, userId) {
+  // This function is used to get all moods for a user in a date range
+  const moods = await Mood.find({
+    user_id: userId,
+    created_at: { $gte: start_date, $lte: end_date }
+  }).populate('mood_type');
+  return moods;
+}
+
+exports.getMoodSummaryByDateRange = async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) {
+      return res.status(400).json({ error: 'Start and end dates are required (YYYY-MM-DD)' });
+    }
+    console.log('Fetching mood summary for user:', req.user._id, 'from', start, 'to', end);
+    const start_date = new Date(start);
+    const end_date = new Date(end);
+    console.log('Start Date:', start_date, 'End Date:', end_date);
+    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+    }
+
+    start_date.setHours(0, 0, 0, 0);
+    end_date.setHours(23, 59, 59, 999); 
+
+    let moods = [];
+    if (start_date && end_date) {
+      // Get all moods for the user in the date range, and populate mood_type
+      moods = await getMoodsbro(start_date, end_date, req.user._id);
+      console.log('Fetched moods:', moods);
+    }
+
+    const dayToMood = {};
+    const moodTypeCounts = {};
+
+    moods.forEach(mood => {
+      console.log('Mood:', mood);
+      const day = mood.created_at;
+      const moodTypeName = mood.mood_type && mood.mood_type.name ? mood.mood_type.name : 'Unknown';
+      dayToMood[day] = moodTypeName;
+      moodTypeCounts[moodTypeName] = (moodTypeCounts[moodTypeName] || 0) + 1;
+    });
+
+    res.json({
+      days: dayToMood,
+      counts: moodTypeCounts
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getMoods = async (req, res) => {
   // METHOD: GET
   // URL: /moods

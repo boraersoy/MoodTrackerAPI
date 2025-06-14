@@ -13,7 +13,7 @@ const {
   getTodaysMood,
   // Mood Type Controllers
   getMoodTypes,
-  
+  getMoodSummaryByDateRange,
   // Task Controllers
   getTasks,
   createTask,
@@ -45,10 +45,14 @@ router.route('/moods')
 router.route('/moods/:date')
   .get(auth, getMoodByDate)
   
-
+router.route('/stats/moods')
+  .get(auth, getMoodSummaryByDateRange);
+  
   // Mood Type Routes
 router.route('/mood-types')
-  .get(getMoodTypes);
+  .get(auth, getMoodTypes);
+
+
 
 // Task Routes
 router.route('/tasks')
