@@ -8,6 +8,23 @@ require('dotenv').config();
 // ======================
 // Mood Controllers
 // ======================
+
+async function createdMood(userId)
+{
+  // This function is used to check if a mood has been created today
+  const today = new Date().setHours(0, 0, 0, 0); // Set time to start of the day
+  const mood = await Mood.findOne({
+    user_id: userId,
+    created_at: today
+  });
+  if (mood) {
+    console.log('Mood already created for today:', mood);
+    return true; // Mood already exists for today
+  }
+  console.log('No mood found for today');
+  return false; // No mood found for today
+}
+
 exports.createMood = async (req, res) => {
   // METHOD: POST
   // URL: /moods
@@ -17,24 +34,16 @@ exports.createMood = async (req, res) => {
   try {
     // get user id from authenticated user
     const user = await User.findById(req.user._id);
-    console.log(user);
     // check if user exists
     if (!user) return res.status(404).json({ error: 'User not found' });
     // check if mood has been recorded today
-    const today = new Date();
-    const existingMood = await Mood.findOne({
-      user_id: user._id,
-      created_at: {
-        $gte: new Date(today.setHours(0, 0, 0, 0)),
-        $lt: new Date(today.setHours(23, 59, 59, 999))
-      }
-    });
+    const existingMood = createdMood(user._id);
     // If mood already exists for today, return error
-    if (existingMood) {
+    if (existingMood==true) {
       return res.status(400).json({ error: 'Mood already recorded for today' });
     }
     // Create new mood
-    console.log('Creating mood for user:', user._id);
+    console.log('Creating mood for user:', user.email);
     const moodData = {
       // Attach authenticated user
       user_id: user._id,
@@ -49,8 +58,6 @@ exports.createMood = async (req, res) => {
       // Optional note for the mood
       note: req.body.note || '',
     };
-    // save mood to database
-    console.log('Mood data:', moodData);
     // if mood_type is not provided, return error
     if (!moodData.mood_type) {
       return res.status(400).json({ error: 'Mood type is required' });
@@ -59,7 +66,7 @@ exports.createMood = async (req, res) => {
     const mood = new Mood(moodData);
     await mood.save();
     // Update user's last mood date and streak
-    user.last_mood_date = today; // Set last mood date to today
+    user.last_mood_date = mood.created_at; // Set last mood date to today
     user.streak.current += 1; // Increment current streak
     if (user.streak.current > user.streak.longest) {
       user.streak.longest = user.streak.current; // Update longest streak if current is greater

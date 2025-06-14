@@ -11,7 +11,7 @@ const moodSchema = new mongoose.Schema({
   },
   created_at: { 
     type: Date, 
-    default: Date.now 
+    default: new Date().setHours(0, 0, 0, 0) // Set to start of the day
   },
   // ADDED FIELDS
   mood_type: { 
@@ -24,5 +24,11 @@ const moodSchema = new mongoose.Schema({
     ref: 'Reason' 
   }
 });
+
+/* TO STRING METHOD
+moodSchema.methods.toString = function() {
+  return `Mood: ${this.mood_type.name} on (${tformatDateOnly(this.created_at)}) because of ${this.reason.name}- ${this.note || ''} `;
+};
+*/
 
 module.exports = mongoose.model('Mood', moodSchema);
