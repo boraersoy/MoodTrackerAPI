@@ -12,7 +12,8 @@ require('dotenv').config();
 async function createdMood(userId)
 {
   // This function is used to check if a mood has been created today
-  const today = new Date().setHours(0, 0, 0, 0); // Set time to start of the day
+  const today = new Date(); // get today's date
+  today.setUTCHours(0, 0, 0, 0); // Set time to start of the day
   const mood = await Mood.findOne({
     user_id: userId,
     created_at: today
@@ -42,11 +43,15 @@ exports.createMood = async (req, res) => {
     if (existingMood==true) {
       return res.status(400).json({ error: 'Mood already recorded for today' });
     }
+    const today = new Date(); // get today's date
+    today.setUTCHours(0, 0, 0, 0); // Set time to start of the day
     // Create new mood
     console.log('Creating mood for user:', user.email);
     const moodData = {
       // Attach authenticated user
       user_id: user._id,
+      // Set created_at to today
+      created_at: today,
       // Ensure mood_type is included
       mood_type: await Mood_Type.findOne({ 
         name: req.body.mood_type, 
@@ -93,11 +98,13 @@ exports.getTodaysMood = async (req, res) => {
     }
     // Fetch today's mood for the authenticated user
     console.log('Fetching today\'s mood for user:', req.user._id);
-    const today = new Date().setHours(0, 0, 0, 0); // Set time to start of the day
+    const today = new Date(); // get today's date
+    today.setUTCHours(0, 0, 0, 0); // Set time to start of the day
     const mood = await Mood.findOne({
       user_id: req.user._id,
       created_at: today
-    });
+    }).populate('mood_type reason');
+    // If mood is not found, return 404
     if (!mood) {
       return res.status(404).json({ error: 'No mood found for today' });
     }
@@ -123,7 +130,12 @@ exports.updateMood = async (req, res) => {
     }
     // Fetch today's mood for the authenticated user
     console.log('Fetching today\'s mood for user:', req.user._id);
-    const today = new Date().setHours(0, 0, 0, 0); // Set time to start of the day
+    const today = new Date(); // Set time to start of the day
+    today.setUTCHours(0, 0, 0, 0); // Set time to start of the day // Set time to start of the day
+    existingMood = await createdMood(req.user._id);
+    if (existingMood==false) {
+      return res.status(404).json({ error: 'No mood found for today' });
+    }
     const mood = await Mood.findOneAndUpdate({
       user_id: req.user._id,
       created_at: today
@@ -131,16 +143,14 @@ exports.updateMood = async (req, res) => {
       mood_type: await Mood_Type.findOne({ 
         name: req.body.mood_type, 
       }),
-      // Optional reason for the mood
-      reason: await Reason.findOne({ 
-        name: req.body.reason, 
-      }) || null, // If reason is not provided, set to null
-      // Optional note for the mood
-      note: req.body.note || '',
+      // Optional reason for the mood - only update if provided
+      ...(req.body.reason !== undefined && { 
+        reason: await Reason.findOne({ name: req.body.reason }) 
+      }),
+      // Optional note for the mood - only update if provided
+      ...(req.body.note !== undefined && { note: req.body.note }),
     }, { new: true });
-    if (!mood) {
-      return res.status(404).json({ error: 'No mood found for today' });
-    }
+    await mood.populate('mood_type reason');
     console.log('Today\'s New Mood:', mood);
     res.status(200).json(mood);
   } catch (err) {
@@ -173,60 +183,78 @@ exports.getMoodByDate = async (req, res) => {
   try {
     console.log('Fetching mood for user:', req.user._id, 'on date:', req.params.date);
     // Ensure the date is in the correct format
-    const date = new Date(req.params.date);
+    const date = new Date(req.params.date); // Month is 0-indexed in JavaScript
     const mood = await Mood.findOne({
-      // Find mood by date
-      // Ensure the date is set to the start and end of the day 
-      created_at: {
-        $gte: new Date(date.setHours(0, 0, 0, 0)),
-        $lt: new Date(date.setHours(23, 59, 59, 999))
-      }, 
       // Ensure the mood belongs to the authenticated user
-      user_id: req.user._id 
+      user_id: req.user._id,
+      // Find mood by date
+      created_at: date
     });
     // If mood is not found, return 404
     if (!mood) return res.status(404).json({ error: 'Mood not found' });
-    // Return the mood
+    // Log the mood
     console.log('Mood found:', mood);
-    // Return the mood object
+    // Return the mood
     res.status(200).json(mood);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-async function getMoodsbro(start_date, end_date, userId) {
-  // This function is used to get all moods for a user in a date range
-  const moods = await Mood.find({
-    user_id: userId,
-    created_at: { $gte: start_date, $lte: end_date }
-  }).populate('mood_type');
+async function getMoodsHelper(userId, mood_type, start_date, end_date) {
+  // This function is used to get all moods for a user in a date range and with a possible mood type
+  filter = { user_id: userId };
+  // If mood_type is provided, add it to the filter
+  if (mood_type) {
+    const moodTypeObj = await Mood_Type.findOne({ name: mood_type });
+    filter.mood_type = moodTypeObj;
+  }
+  // if no start_date and end_date are provided, return all moods for the user
+  if (start_date) {
+    start_date = new Date(start_date);
+    // Set time to start of the day for start_date
+    start_date.setUTCHours(0, 0, 0, 0);
+    filter.created_at = {
+      $gte: start_date // Set start date
+    };
+  }
+  // If end_date is provided, set it
+  if (end_date) {  
+    end_date = new Date(end_date);
+    filter.created_at = {
+      ...filter.created_at, // Keep existing filter
+      $lte: end_date // Set end date
+    };
+  }
+  // Ensure start_date is before end_date
+  if (start_date > end_date) {
+    throw new Error('Start date must be before end date');
+  }
+  console.log('Fetching moods for user:', userId, 'from', start_date, 'to', end_date);
+  // Find all moods for the user in the date range and populate mood_type and reason
+  const moods = await Mood.find(filter)
+    .populate('mood_type reason')
+    .sort({ created_at: -1 }); // Sort by created_at in descending order
+  console.log('Fetched moods:', moods);
+  // Return the moods
   return moods;
 }
 
 exports.getMoodSummaryByDateRange = async (req, res) => {
+  // METHOD: GET
+  // URL: /stats/moods
+  // DESCRIPTION: Get mood summary for the authenticated user in a date range
+  // QUERY: start (optional), end (optional)
+  // RESPONSE: Object with days and counts
+  // Example: GET /stats/moods?start_date=2023-01-01&end_date=2023-01-31
+  // AUTH: Required
   try {
-    const { start, end } = req.query;
-    if (!start || !end) {
-      return res.status(400).json({ error: 'Start and end dates are required (YYYY-MM-DD)' });
-    }
-    console.log('Fetching mood summary for user:', req.user._id, 'from', start, 'to', end);
-    const start_date = new Date(start);
-    const end_date = new Date(end);
-    console.log('Start Date:', start_date, 'End Date:', end_date);
-    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
-      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
-    }
-
-    start_date.setHours(0, 0, 0, 0);
-    end_date.setHours(23, 59, 59, 999); 
-
+    const { start_date, end_date } = req.query;
+    console.log('Fetching mood summary for user:', req.user._id, 'from', start_date, 'to', end_date);
     let moods = [];
-    if (start_date && end_date) {
-      // Get all moods for the user in the date range, and populate mood_type
-      moods = await getMoodsbro(start_date, end_date, req.user._id);
-      console.log('Fetched moods:', moods);
-    }
+    // Get all moods for the user in the date range, and populate mood_type
+    moods = await getMoodsHelper(req.user._id, undefined, start_date, end_date);
+    console.log('Fetched moods:', moods);
 
     const dayToMood = {};
     const moodTypeCounts = {};
@@ -260,18 +288,11 @@ exports.getMoods = async (req, res) => {
   try {
     console.log('Fetching moods for user:', req.user._id);
     const { mood_type, start_date, end_date } = req.query;
-    const filter = { user_id: req.user._id };
-    
-    if (mood_type) filter.mood_type = mood_type;
-    if (start_date && end_date) {
-      filter.created_at = { 
-        $gte: new Date(start_date), 
-        $lte: new Date(end_date) 
-      };
+    // Ensure the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-
-    const moods = await Mood.find(filter).populate('mood_type reason')
-    .sort({ created_at: -1 });
+    const moods = await getMoodsHelper(req.user._id, mood_type, start_date, end_date);
     res.json(moods);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -294,7 +315,7 @@ exports.getTasks = async (req, res) => {
     // get today's mood for the authenticated user
     const todays_mood = await Mood.findOne({
       user_id: req.user._id,
-      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+      created_at: { $gte: today.setUTCHours(0, 0, 0, 0), $lt: today.setUTCHours(23, 59, 59, 999) }
     });
     console.log('Todays Mood:', todays_mood);
     // If no mood found for today, return 404
@@ -357,7 +378,7 @@ exports.getQuotes = async (req, res) => {
     // get today's mood for the authenticated user
     const todays_mood = await Mood.findOne({
       user_id: req.user._id,
-      created_at: { $gte: today.setHours(0, 0, 0, 0), $lt: today.setHours(23, 59, 59, 999) }
+      created_at: { $gte: today.setUTCHours(0, 0, 0, 0), $lt: today.setUTCHours(23, 59, 59, 999) }
     });
     console.log('Todays Mood:', todays_mood);
     // If no mood found for today, return 404
@@ -393,6 +414,7 @@ exports.getQuotes = async (req, res) => {
 // ======================
 // Avatar Controllers
 // ======================
+exports.getAvatars = async (req, res) => {
   // METHOD: GET
   // URL: /api/avatars?mood_type=
   // DESCRIPTION: Get the random avatar for related mood type for users choice of avatar
@@ -403,7 +425,6 @@ exports.getQuotes = async (req, res) => {
   // ** for overwhelmed/tired : tired
   // ** for surprised/scared : scared
   // ** You can use it for first avatar who asks the mood by mood_type=default (default)
-exports.getAvatars = async (req, res) => {
   try {
     const { mood_type } = req.query;
 
@@ -544,11 +565,11 @@ exports.getStreak = async (req, res) => {
       return res.json(user.streak);
     }
     // Check if last mood was before yesterday
-    lastMoodDate.setHours(0, 0, 0, 0); // Set time to start of the day
+    lastMoodDate.setUTCHours(0, 0, 0, 0); // Set time to start of the day
     // Calculate yesterday's date
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0); // Set time to start of the day
+    yesterday.setUTCHours(0, 0, 0, 0); // Set time to start of the day
     console.log('Yesterday:', yesterday);
     console.log('Last Mood Date:', lastMoodDate);
     if (lastMoodDate < yesterday) {

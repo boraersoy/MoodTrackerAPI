@@ -20,7 +20,7 @@ const avatarSchema = new mongoose.Schema({
   },
   mood_type: { 
     type: String,
-    required: false 
+    required: true 
   }
 });
 

@@ -11,7 +11,6 @@ const moodSchema = new mongoose.Schema({
   },
   created_at: { 
     type: Date, 
-    default: new Date().setHours(0, 0, 0, 0) // Set to start of the day
   },
   // ADDED FIELDS
   mood_type: { 
