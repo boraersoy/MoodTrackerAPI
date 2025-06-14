@@ -504,17 +504,15 @@ exports.getUserProfile = async (req, res) => {
   // RESPONSE: User object without password
   // Example: GET /users/me
   // AUTH: Required
-  if (!req.user || !req.user._id) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
   try {
-    console.log('Fetching user profile for user:', req.user._id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     const user = await User.findById(req.user._id)
       .select('-password_hash')
       .populate('avatar_id');
-    // Ensure streak is calculated
-    exports.getStreak(req, res); // Call getStreak to ensure streak is calculated
+    console.log('Fetching user profile for user:', req.user._id);
+    if (!user) return res.status(404).json({ error: 'User not found' }); 
     // Return user profile without password
     console.log('User Profile:', user);
     res.status(200).json(user);
@@ -522,6 +520,7 @@ exports.getUserProfile = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 // COULD NOT TRY AS THERE IS NO AVATAR DATA YET
 exports.updateAvatar = async (req, res) => {
   try {
