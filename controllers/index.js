@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { User, Mood, Mood_Type ,Reason, Task, Quote, Avatar } = require('../models');
-const { get } = require('../routes');
 require('dotenv').config();
 
 // ======================
@@ -37,7 +36,7 @@ exports.createMood = async (req, res) => {
     // check if user exists
     if (!user) return res.status(404).json({ error: 'User not found' });
     // check if mood has been recorded today
-    const existingMood = createdMood(user._id);
+    const existingMood = await createdMood(user._id);
     // If mood already exists for today, return error
     if (existingMood==true) {
       return res.status(400).json({ error: 'Mood already recorded for today' });
@@ -645,8 +644,7 @@ exports.getUserProfile = async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const user = await User.findById(req.user._id)
-      .select('-password_hash')
-      .populate('avatar_id');
+      .select('-password_hash');
     console.log('Fetching user profile for user:', req.user._id);
     if (!user) return res.status(404).json({ error: 'User not found' }); 
     // Return user profile without password
