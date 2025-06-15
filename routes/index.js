@@ -14,6 +14,8 @@ const {
   // Mood Type Controllers
   getMoodTypes,
   getMoodSummaryByDateRange,
+  createMoodType,
+  deleteMoodType,
   // Task Controllers
   getTasks,
   createTask,
@@ -30,7 +32,7 @@ const {
   getUserProfile,
   updateAvatar,
   setReminder,
-  getStreak
+  getStreak,
 } = require('../controllers');
 
 // Mood Routes
@@ -43,16 +45,18 @@ router.route('/moods')
   .get(auth, getMoods);
 
 router.route('/moods/:date')
-  .get(auth, getMoodByDate)
+  .get(auth, getMoodByDate);
   
 router.route('/stats/moods')
   .get(auth, getMoodSummaryByDateRange);
   
   // Mood Type Routes
 router.route('/mood-types')
-  .get(auth, getMoodTypes);
-
-
+  .get(auth, getMoodTypes)
+  .post(auth, createMoodType); // Create a new mood type
+  
+router.route('/mood-types/:name')
+  .delete(auth, deleteMoodType); // Delete a mood type by name
 
 // Task Routes
 router.route('/tasks')
